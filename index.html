@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="strict-origin-when-cross-origin" name="referrer"/>
+<title>Investigación exploratoria | Tecnologías para operaciones antárticas</title>
+<meta content="Análisis exploratorio de sistemas no tripulados, sensores, computación en el borde e integración de datos para escenarios antárticos. Hipótesis, referencias y limitaciones a validar." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      color-scheme: dark;
+      --bg: #06101a;
+      --bg-2: #0b1624;
+      --panel: rgba(12, 22, 36, 0.72);
+      --panel-strong: rgba(10, 18, 29, 0.88);
+      --line: rgba(197, 219, 240, 0.12);
+      --line-strong: rgba(197, 219, 240, 0.2);
+      --text: #edf5fc;
+      --muted: #a7bdd1;
+      --accent: #69a3ff;
+      --accent-2: #34e3bb;
+      --danger: #ff5c7a;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+      --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.24);
+      --radius-xl: 34px;
+      --radius-lg: 26px;
+      --radius-md: 20px;
+      --max: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "IBM Plex Sans", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(105, 163, 255, 0.14), transparent 26%),
+        radial-gradient(circle at 90% 12%, rgba(52, 227, 187, 0.08), transparent 22%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(110, 134, 164, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(110, 134, 164, 0.08) 1px, transparent 1px);
+      background-size: 84px 84px;
+      mask-image: radial-gradient(circle at center, black 34%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle at center, black 34%, transparent 100%);
+      opacity: 0.46;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(3, 8, 14, 0.24), rgba(3, 8, 14, 0.58)),
+        radial-gradient(circle at 50% 0%, rgba(105, 163, 255, 0.08), transparent 42%);
+    }
+
+    img, iframe { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    .visual-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.72;
+      transform: scale(1.04);
+      background:
+        radial-gradient(circle at 24% 24%, rgba(105, 163, 255, 0.28), transparent 24%),
+        radial-gradient(circle at 72% 40%, rgba(52, 227, 187, 0.14), transparent 20%),
+        linear-gradient(135deg, rgba(8, 18, 31, 0.9), rgba(2, 7, 13, 0.96));
+    }
+
+    .visual-backdrop::before,
+    .visual-backdrop::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(197, 219, 240, 0.14);
+      border-radius: 999px;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 38px);
+      mask-image: radial-gradient(circle at center, black 0 54%, transparent 72%);
+      -webkit-mask-image: radial-gradient(circle at center, black 0 54%, transparent 72%);
+    }
+
+    .visual-backdrop::after {
+      inset: 22%;
+      border-color: rgba(52, 227, 187, 0.18);
+      transform: rotate(-12deg);
+    }
+
+    .visual-hero {
+      background:
+        linear-gradient(120deg, rgba(2, 6, 12, 0.45), rgba(2, 6, 12, 0.05)),
+        radial-gradient(circle at 50% 16%, rgba(105, 163, 255, 0.3), transparent 22%),
+        radial-gradient(circle at 52% 54%, rgba(52, 227, 187, 0.12), transparent 34%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 28px),
+        linear-gradient(135deg, #0b1726, #040910 82%);
+    }
+
+    .visual-hero::before {
+      inset: 8% 18% 8% 30%;
+      border-radius: 34px;
+      transform: skewX(-10deg);
+      background:
+        linear-gradient(90deg, transparent, rgba(105, 163, 255, 0.18), transparent),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 18px);
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    .visual-crevasse {
+      background:
+        radial-gradient(circle at 24% 18%, rgba(105, 163, 255, 0.24), transparent 22%),
+        linear-gradient(138deg, transparent 0 34%, rgba(255, 255, 255, 0.16) 34.2% 35%, transparent 35.2% 100%),
+        linear-gradient(54deg, transparent 0 48%, rgba(52, 227, 187, 0.12) 48.2% 49%, transparent 49.2% 100%),
+        repeating-linear-gradient(168deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 24px),
+        linear-gradient(135deg, #07121f, #101c2c 55%, #03080f);
+    }
+
+    .visual-uav {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(105, 163, 255, 0.28), transparent 20%),
+        linear-gradient(90deg, transparent 0 42%, rgba(237, 245, 252, 0.16) 42.2% 57%, transparent 57.2% 100%),
+        linear-gradient(0deg, transparent 0 47%, rgba(237, 245, 252, 0.12) 47.2% 52%, transparent 52.2% 100%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 32px),
+        linear-gradient(135deg, #081521, #03070d);
+    }
+
+    .visual-analytics {
+      background:
+        radial-gradient(circle at 28% 42%, rgba(52, 227, 187, 0.28), transparent 10%),
+        radial-gradient(circle at 58% 34%, rgba(105, 163, 255, 0.22), transparent 12%),
+        radial-gradient(circle at 70% 64%, rgba(255, 92, 122, 0.2), transparent 9%),
+        repeating-linear-gradient(32deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 22px),
+        linear-gradient(135deg, #0a1623, #03080f);
+    }
+
+    .visual-edge {
+      background:
+        radial-gradient(circle at 50% 44%, rgba(52, 227, 187, 0.24), transparent 18%),
+        radial-gradient(circle at 50% 44%, rgba(105, 163, 255, 0.22), transparent 34%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 28px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 28px),
+        linear-gradient(135deg, #081521, #03070d);
+    }
+
+    .visual-satellite {
+      background:
+        radial-gradient(circle at 62% 38%, rgba(105, 163, 255, 0.26), transparent 18%),
+        radial-gradient(circle at 34% 62%, rgba(52, 227, 187, 0.12), transparent 22%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 26px),
+        linear-gradient(135deg, #0b1726, #03080f);
+    }
+
+    .visual-albatros {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(237, 245, 252, 0.2), transparent 16%),
+        linear-gradient(105deg, transparent 0 36%, rgba(237, 245, 252, 0.2) 36.2% 50%, transparent 50.2% 100%),
+        linear-gradient(75deg, transparent 0 50%, rgba(105, 163, 255, 0.14) 50.2% 62%, transparent 62.2% 100%),
+        linear-gradient(180deg, #0b1827, #02060c);
+    }
+
+    h1, h2, h3, h4, .brand strong {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      letter-spacing: -0.04em;
+    }
+
+    .shell {
+      width: min(var(--max), calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding-top: 14px;
+    }
+
+    .topbar-inner {
+      width: min(var(--max), calc(100% - 36px));
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(6, 15, 26, 0.68);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      min-width: 210px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 999px;
+      margin-right: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand strong { font-size: 0.98rem; }
+    .brand span, .nav a { color: var(--muted); font-size: 0.84rem; }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 13px;
+    }
+
+    .nav a {
+      transition: color 180ms ease;
+      white-space: nowrap;
+    }
+
+    .nav a:hover { color: var(--text); }
+
+    .section {
+      position: relative;
+      padding: 76px 0;
+      scroll-margin-top: 112px;
+    }
+
+    .section-head {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
+      max-width: 820px;
+    }
+
+    .section-head.center {
+      margin-inline: auto;
+      text-align: center;
+      justify-items: center;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4.5rem);
+      line-height: 0.96;
+      max-width: 13ch;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .eyebrow, .tag, .pill, .micro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      padding: 10px 14px;
+      border: 1px solid rgba(105, 163, 255, 0.16);
+      background: rgba(105, 163, 255, 0.09);
+      color: var(--accent);
+      font-size: 0.76rem;
+    }
+
+    .eyebrow::before, .tag::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 18px rgba(105, 163, 255, 0.3);
+    }
+
+    .tag {
+      color: var(--accent);
+      font-size: 0.74rem;
+    }
+
+    .pill, .micro-badge {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.045);
+      color: rgba(237, 245, 252, 0.86);
+      font-size: 0.7rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+
+    .button-primary {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), #1f90ff);
+      box-shadow: 0 18px 40px rgba(47, 107, 255, 0.22);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      border-color: var(--line-strong);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .card,
+    .media-panel,
+    .module-showcase,
+    .research-card,
+    .resource-card,
+    .objection-card,
+    .decision-card,
+    .mockup-dashboard,
+    .flow-node,
+    .layer-card {
+      --spot-x: 50%;
+      --spot-y: 50%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-lg);
+    }
+
+    .media-panel,
+    .module-showcase,
+    .card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .media-panel::after,
+    .module-showcase::after,
+    .card::after,
+    .research-card::after,
+    .resource-card::after,
+    .objection-card::after,
+    .decision-card::after,
+    .mockup-dashboard::after,
+    .flow-node::after,
+    .layer-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 220ms ease;
+      background:
+        radial-gradient(420px circle at var(--spot-x) var(--spot-y), rgba(105, 163, 255, 0.15), transparent 34%),
+        radial-gradient(280px circle at calc(var(--spot-x) + 8%) calc(var(--spot-y) - 12%), rgba(52, 227, 187, 0.08), transparent 32%);
+    }
+
+    .media-panel:hover::after,
+    .module-showcase:hover::after,
+    .card:hover::after,
+    .research-card:hover::after,
+    .resource-card:hover::after,
+    .objection-card:hover::after,
+    .decision-card:hover::after,
+    .mockup-dashboard:hover::after,
+    .flow-node:hover::after,
+    .layer-card:hover::after { opacity: 1; }
+
+    .cinematic-hero {
+      position: relative;
+      min-height: calc(100vh - 96px);
+      margin-top: 28px;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius-xl) + 4px);
+      box-shadow: var(--shadow);
+      background: #07111d;
+    }
+
+    .cinematic-hero img,
+    .cinematic-hero .visual-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.66;
+      transform: scale(1.04);
+      animation: slowDrift 18s ease-in-out infinite alternate;
+    }
+
+    .cinematic-hero img,
+    .media-panel img,
+    .paradigm-card img,
+    .closing img {
+      object-fit: cover;
+    }
+
+    .cinematic-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(90deg, rgba(4, 9, 16, 0.94), rgba(5, 12, 22, 0.56) 48%, rgba(5, 12, 22, 0.82)),
+        linear-gradient(180deg, transparent 26%, rgba(3, 8, 14, 0.88) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: clamp(28px, 5vw, 68px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.44fr);
+      gap: 28px;
+      align-items: end;
+    }
+
+    .hero-title {
+      display: grid;
+      gap: 18px;
+      max-width: 760px;
+    }
+
+    .hero-title h1 {
+      margin: 0;
+      font-size: clamp(3.2rem, 9vw, 8.6rem);
+      line-height: 0.84;
+      max-width: 9ch;
+    }
+
+    .hero-title p {
+      margin: 0;
+      max-width: 43ch;
+      color: rgba(237, 245, 252, 0.82);
+      font-size: clamp(1.06rem, 2vw, 1.5rem);
+      line-height: 1.45;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero-glass {
+      padding: 18px;
+      border: 1px solid rgba(197, 219, 240, 0.16);
+      border-radius: 22px;
+      background: rgba(8, 18, 31, 0.58);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero-glass strong {
+      display: block;
+      margin-bottom: 7px;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.12;
+    }
+
+    .hero-glass span {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    .media-panel {
+      min-height: 560px;
+      display: grid;
+      align-items: end;
+      background: #08121f;
+    }
+
+    .media-panel.compact { min-height: 420px; }
+
+    .media-panel img,
+    .media-panel .visual-backdrop,
+    .module-media img,
+    .resource-media img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.78;
+      transition: transform 500ms ease, opacity 500ms ease;
+    }
+
+    .media-panel:hover img,
+    .media-panel:hover .visual-backdrop,
+    .module-showcase:hover .module-media > img,
+    .resource-card:hover .resource-media img { transform: scale(1.035); opacity: 0.88; }
+
+    .media-panel::before,
+    .module-media::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(5, 12, 20, 0.04), rgba(5, 12, 20, 0.9)),
+        radial-gradient(circle at 16% 20%, rgba(105, 163, 255, 0.18), transparent 34%);
+      pointer-events: none;
+    }
+
+    .media-overlay {
+      position: relative;
+      z-index: 2;
+      width: min(720px, calc(100% - 34px));
+      margin: 17px;
+      padding: 22px;
+      border: 1px solid rgba(197, 219, 240, 0.16);
+      border-radius: 24px;
+      background: rgba(6, 15, 26, 0.62);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .media-overlay h2,
+    .media-overlay h3 {
+      margin: 12px 0 8px;
+      font-size: clamp(1.9rem, 4vw, 4.3rem);
+      line-height: 0.95;
+      max-width: 12ch;
+    }
+
+    .media-overlay p {
+      margin: 0;
+      max-width: 48ch;
+      color: rgba(237, 245, 252, 0.78);
+      line-height: 1.55;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .paradigm-card {
+      position: relative;
+      min-height: 460px;
+      padding: 24px;
+      display: grid;
+      align-content: end;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      background: rgba(8, 18, 31, 0.74);
+    }
+
+    .paradigm-card img,
+    .paradigm-card .visual-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.48;
+    }
+
+    .paradigm-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, transparent, rgba(4, 10, 18, 0.92));
+    }
+
+    .paradigm-card > div {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 12px;
+    }
+
+    .paradigm-card h3 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3.2vw, 3.1rem);
+      line-height: 0.98;
+    }
+
+    .paradigm-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+      max-width: 34ch;
+    }
+
+    .system-flow {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px;
+      border-radius: calc(var(--radius-xl) + 2px);
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(105, 163, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 82% 36%, rgba(52, 227, 187, 0.12), transparent 24%),
+        rgba(7, 16, 27, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .system-flow::before {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(105, 163, 255, 0.5), rgba(52, 227, 187, 0.36), transparent);
+    }
+
+    .flow-node {
+      position: relative;
+      z-index: 1;
+      min-height: 190px;
+      padding: 18px;
+      display: grid;
+      align-content: space-between;
+      background: rgba(255, 255, 255, 0.045);
+      box-shadow: none;
+    }
+
+    .flow-node .node-index {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(105, 163, 255, 0.28), rgba(52, 227, 187, 0.18));
+      border: 1px solid rgba(197, 219, 240, 0.18);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .flow-node strong {
+      display: block;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      line-height: 1.08;
+    }
+
+    .flow-node span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .layer-stack {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .layer-card {
+      position: relative;
+      min-height: 330px;
+      padding: 20px;
+      display: grid;
+      align-content: end;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+        rgba(8, 18, 31, 0.72);
+    }
+
+    .layer-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.36;
+      transform: scale(1.03);
+      transition: opacity 360ms ease, transform 520ms ease;
+    }
+
+    .layer-card:hover img {
+      opacity: 0.52;
+      transform: scale(1.08);
+    }
+
+    .layer-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      height: auto;
+      border-radius: inherit;
+      background:
+        linear-gradient(180deg, rgba(5, 12, 20, 0.1), rgba(5, 12, 20, 0.92)),
+        radial-gradient(circle at 20% 18%, rgba(105, 163, 255, 0.18), transparent 42%);
+      opacity: 1;
+    }
+
+    .layer-card > * { position: relative; z-index: 2; }
+
+    .layer-card strong {
+      display: block;
+      margin: 12px 0 8px;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.25rem;
+      line-height: 1.04;
+    }
+
+    .layer-card span {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .module-grid {
+      display: grid;
+      gap: 34px;
+    }
+
+    .module-showcase {
+      min-height: 680px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.02)),
+        rgba(7, 16, 27, 0.78);
+    }
+
+    .module-showcase.is-reverse {
+      grid-template-columns: minmax(360px, 0.75fr) minmax(0, 1.25fr);
+    }
+
+    .module-showcase.is-reverse .module-media { order: 2; }
+
+    .module-media {
+      position: relative;
+      min-height: 680px;
+      overflow: hidden;
+      background: #08121f;
+    }
+
+    .module-video {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: #050b13;
+    }
+
+    .module-video iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      opacity: 0.72;
+      transform: scale(1.015);
+    }
+
+    .module-media .media-overlay {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 2;
+    }
+
+    .module-detail {
+      position: relative;
+      z-index: 2;
+      padding: 28px;
+      display: grid;
+      gap: 16px;
+      align-content: center;
+      border-left: 1px solid var(--line);
+    }
+
+    .module-showcase.is-reverse .module-detail {
+      border-left: 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .module-detail h3 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3.2rem);
+      line-height: 0.98;
+    }
+
+    .module-detail p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .module-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fact {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .fact small {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .fact strong {
+      display: block;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.98rem;
+      line-height: 1.2;
+    }
+
+    .research-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .research-card {
+      position: relative;
+      padding: 18px;
+      overflow: hidden;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .research-card small {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .research-card strong {
+      display: block;
+      color: #fff;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: clamp(1.35rem, 2vw, 2.1rem);
+      line-height: 1;
+    }
+
+    .research-card span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.42;
+    }
+
+    .module-actions,
+    .resource-actions,
+    .decision-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .reference-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .component-card {
+      position: relative;
+      min-height: 210px;
+      padding: 14px;
+      display: grid;
+      align-content: end;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .component-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.62;
+      transform: scale(1.02);
+      transition: transform 500ms ease, opacity 500ms ease;
+    }
+
+    .component-card:hover img {
+      transform: scale(1.06);
+      opacity: 0.78;
+    }
+
+    .component-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(4, 10, 18, 0.05), rgba(4, 10, 18, 0.92)),
+        radial-gradient(circle at 18% 18%, rgba(105, 163, 255, 0.16), transparent 34%);
+    }
+
+    .component-copy {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 7px;
+    }
+
+    .component-copy small {
+      color: var(--accent);
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .component-copy strong {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.08rem;
+      line-height: 1.08;
+    }
+
+    .component-copy span {
+      color: rgba(237, 245, 252, 0.78);
+      font-size: 0.88rem;
+      line-height: 1.38;
+    }
+
+    .component-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .component-pills span {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.035);
+      color: rgba(237, 245, 252, 0.78);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .reference-card {
+      min-height: 138px;
+      padding: 15px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at top left, rgba(105, 163, 255, 0.1), transparent 42%),
+        rgba(255, 255, 255, 0.035);
+    }
+
+    .reference-card small {
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .reference-card strong {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      line-height: 1.1;
+    }
+
+    .reference-card a {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .video-embed {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.34);
+      aspect-ratio: 16 / 9;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .video-embed iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-card {
+      padding: 18px;
+      min-height: 172px;
+      display: grid;
+      align-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top left, rgba(105, 163, 255, 0.16), transparent 42%),
+        rgba(255, 255, 255, 0.04);
+    }
+
+    .video-card strong {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.1rem;
+      line-height: 1.12;
+    }
+
+    .video-card span {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .mockup-dashboard {
+      position: relative;
+      min-height: 470px;
+      padding: 22px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 24% 14%, rgba(105, 163, 255, 0.2), transparent 28%),
+        radial-gradient(circle at 84% 30%, rgba(52, 227, 187, 0.12), transparent 25%),
+        rgba(7, 16, 27, 0.88);
+    }
+
+    .mockup-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .mockup-top h3 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 3rem);
+      line-height: 1;
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+      gap: 14px;
+    }
+
+    .dashboard-image {
+      position: relative;
+      min-height: 340px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dashboard-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 340px;
+      object-fit: cover;
+      opacity: 0.9;
+    }
+
+    .dashboard-summary {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dashboard-summary h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.1;
+    }
+
+    .dashboard-summary p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 0.92rem;
+    }
+
+    .dashboard-summary ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .dashboard-summary li {
+      position: relative;
+      padding-left: 14px;
+      color: rgba(237, 245, 252, 0.78);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .dashboard-summary li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.52em;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .map-screen,
+    .telemetry-panel,
+    .signal-panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+    }
+
+    .map-screen {
+      position: relative;
+      min-height: 310px;
+      background:
+        linear-gradient(120deg, rgba(105, 163, 255, 0.12), transparent 38%),
+        repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 18px),
+        rgba(5, 13, 23, 0.72);
+    }
+
+    .map-screen::before,
+    .map-screen::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(52, 227, 187, 0.5);
+      border-radius: 999px;
+      box-shadow: 0 0 24px rgba(52, 227, 187, 0.14);
+    }
+
+    .map-screen::before {
+      width: 120px;
+      height: 120px;
+      left: 18%;
+      top: 28%;
+    }
+
+    .map-screen::after {
+      width: 78px;
+      height: 78px;
+      right: 24%;
+      bottom: 22%;
+      border-color: rgba(255, 92, 122, 0.6);
+      box-shadow: 0 0 24px rgba(255, 92, 122, 0.14);
+    }
+
+    .telemetry-panel {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .signal-panel {
+      min-height: 82px;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      opacity: 0.74;
+    }
+
+    .signal-panel strong {
+      font-size: 0.92rem;
+      line-height: 1.1;
+    }
+
+    .signal-panel span {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .sovereignty-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .data-vault {
+      min-height: 480px;
+      padding: 26px;
+      display: grid;
+      align-content: end;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 50% 34%, rgba(52, 227, 187, 0.16), transparent 22%),
+        radial-gradient(circle at 50% 50%, rgba(105, 163, 255, 0.18), transparent 42%),
+        rgba(7, 16, 27, 0.86);
+      box-shadow: var(--shadow);
+    }
+
+    .vault-core {
+      position: relative;
+      width: min(360px, 80%);
+      aspect-ratio: 1;
+      margin: 0 auto 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(197, 219, 240, 0.18);
+      background:
+        radial-gradient(circle, rgba(52, 227, 187, 0.28), rgba(105, 163, 255, 0.08) 46%, transparent 70%);
+      box-shadow: 0 0 80px rgba(105, 163, 255, 0.14);
+      animation: pulse 5.8s ease-in-out infinite;
+    }
+
+    .vault-core::before,
+    .vault-core::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: inherit;
+      border: 1px dashed rgba(237, 245, 252, 0.22);
+    }
+
+    .vault-core::after {
+      inset: 34%;
+      border-style: solid;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .learn-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .learn-card {
+      min-height: 260px;
+      padding: 20px;
+      display: grid;
+      align-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .learn-card strong {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.25rem;
+      line-height: 1.05;
+    }
+
+    .learn-card span {
+      color: var(--muted);
+      line-height: 1.48;
+    }
+
+    .validation-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .validation-card {
+      min-height: 390px;
+      padding: 20px;
+      display: grid;
+      align-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022)),
+        rgba(8, 18, 31, 0.76);
+      box-shadow: var(--shadow);
+    }
+
+    .validation-card h3 {
+      margin: 14px 0 8px;
+      font-size: 1.55rem;
+      line-height: 1.02;
+    }
+
+    .validation-card small {
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .validation-card strong {
+      display: block;
+      margin-top: 8px;
+      color: #fff;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .validation-card span {
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: 0.92rem;
+    }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .resource-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+      padding: 18px;
+      display: grid;
+      align-content: space-between;
+      box-shadow: var(--shadow-soft);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .resource-card h3 {
+      margin: 12px 0 8px;
+      font-size: 1.25rem;
+      line-height: 1.08;
+    }
+
+    .resource-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .objection-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .objection-card,
+    .decision-card {
+      position: relative;
+      padding: 24px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(105, 163, 255, 0.12), transparent 40%),
+        rgba(255, 255, 255, 0.04);
+    }
+
+    .objection-card h3,
+    .decision-card h3 {
+      margin: 14px 0 10px;
+      font-size: 1.45rem;
+      line-height: 1.04;
+    }
+
+    .objection-card p,
+    .decision-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .decision-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.48fr);
+      gap: 22px;
+      align-items: center;
+      padding: 32px;
+      border-radius: calc(var(--radius-xl) + 2px);
+    }
+
+    .decision-card h2 {
+      margin: 16px 0 12px;
+      font-size: clamp(2.1rem, 5vw, 5rem);
+      line-height: 0.94;
+      max-width: 12ch;
+    }
+
+    .closing {
+      position: relative;
+      min-height: 660px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius-xl) + 4px);
+      background: #07111d;
+      box-shadow: var(--shadow);
+    }
+
+    .closing img,
+    .closing .visual-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.54;
+      transform: scale(1.03);
+    }
+
+    .closing::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(105, 163, 255, 0.18), transparent 34%),
+        linear-gradient(180deg, rgba(3, 8, 14, 0.3), rgba(3, 8, 14, 0.92));
+    }
+
+    .closing-content {
+      position: relative;
+      z-index: 2;
+      width: min(820px, calc(100% - 36px));
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+    }
+
+    .closing h2 {
+      margin: 0;
+      font-size: clamp(2.6rem, 7vw, 7rem);
+      line-height: 0.88;
+    }
+
+    .closing p {
+      margin: 0;
+      max-width: 50ch;
+      color: rgba(237, 245, 252, 0.8);
+      line-height: 1.55;
+      font-size: 1.1rem;
+    }
+
+    .reveal,
+    .reveal-left,
+    .reveal-right {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 700ms ease, transform 700ms ease;
+    }
+
+    .reveal-left { transform: translateX(-28px); }
+    .reveal-right { transform: translateX(28px); }
+    .is-visible { opacity: 1; transform: translate3d(0, 0, 0); }
+
+    @keyframes slowDrift {
+      from { transform: scale(1.04) translate3d(-0.8%, -0.8%, 0); }
+      to { transform: scale(1.08) translate3d(0.8%, 0.8%, 0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.94); opacity: 0.74; }
+      50% { transform: scale(1.03); opacity: 1; }
+    }
+
+    @media (max-width: 1120px) {
+      .nav { gap: 10px; }
+      .system-flow,
+      .validation-board,
+      .resources-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layer-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .module-showcase,
+      .module-showcase.is-reverse,
+      .sovereignty-grid,
+      .decision-card { grid-template-columns: 1fr; }
+      .module-showcase.is-reverse .module-media { order: 0; }
+      .module-detail,
+      .module-showcase.is-reverse .module-detail {
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar { position: relative; }
+      .topbar-inner {
+        align-items: flex-start;
+        border-radius: 24px;
+        flex-direction: column;
+      }
+      .nav { justify-content: flex-start; }
+      .section { padding: 54px 0; }
+      .hero-content,
+      .compare-grid,
+      .dashboard-grid,
+      .learn-strip,
+      .objection-grid,
+      .mockup-grid,
+      .module-facts,
+      .component-grid,
+      .reference-grid,
+      .research-row {
+        grid-template-columns: 1fr;
+      }
+      .system-flow,
+      .validation-board,
+      .resources-grid,
+      .layer-stack { grid-template-columns: 1fr; }
+      .cinematic-hero,
+      .media-panel,
+      .module-media,
+      .closing { min-height: 560px; }
+      .cinematic-hero::before {
+        background:
+          linear-gradient(180deg, rgba(4, 9, 16, 0.62), rgba(4, 9, 16, 0.92)),
+          linear-gradient(90deg, rgba(4, 9, 16, 0.84), rgba(5, 12, 22, 0.4));
+      }
+      .media-overlay { width: calc(100% - 24px); margin: 12px; padding: 18px; }
+      .brand-copy span { display: none; }
+      .reveal-left,
+      .reveal-right { transform: translateY(28px); }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar" id="top">
+<div class="topbar-inner">
+<div class="brand">
+<svg aria-hidden="true" class="brand-logo" viewbox="0 0 42 42" xmlns="http://www.w3.org/2000/svg"><circle cx="21" cy="21" fill="none" opacity=".9" r="14" stroke="#69a3ff" stroke-width="1.4"></circle><circle cx="21" cy="21" fill="#34e3bb" opacity=".87" r="5.2"></circle><path d="M21 3v12M21 27v12M3 21h12M27 21h12M8.3 8.3l8.6 8.6M25.1 25.1l8.6 8.6M33.7 8.3l-8.6 8.6M16.9 25.1l-8.6 8.6" opacity=".8" stroke="#69a3ff" stroke-width="1.3"></path></svg>
+<div class="brand-copy">
+<strong>INVESTIGACIÓN ANTÁRTICA</strong>
+<span>Estudio exploratorio | sistemas autónomos, sensores e IA</span>
+</div>
+</div>
+<nav aria-label="Secciones principales" class="nav">
+<a href="#problema">Contexto</a>
+<a href="#paradigma">Enfoque</a>
+<a href="#cerebro">Flujo de datos</a>
+<a href="#arquitectura">Arquitectura</a>
+<a href="#modulos">Casos de uso</a>
+<a href="#metodologia">Metodología</a>
+<a href="#recursos">Fuentes</a>
+<a href="#hallazgos">Hallazgos</a>
+</nav>
+</div>
+</header>
+<main class="shell">
+<section class="cinematic-hero reveal" id="hero">
+<img alt="ARA Almirante Irízar navegando en entorno antártico" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Irizar_after_refurbishment.jpg/1280px-Irizar_after_refurbishment.jpg"/>
+<div class="hero-content">
+<div class="hero-title">
+<span class="eyebrow">ESTUDIO EXPLORATORIO | ANTÁRTIDA</span>
+<h1>Tecnologías para la Antártida</h1>
+<p>Sistemas no tripulados, sensores e inteligencia artificial: capacidades posibles, evidencia disponible y desafíos por verificar.</p>
+<div class="module-actions">
+<a class="button button-primary" href="#modulos">Explorar casos de uso</a>
+<a class="button button-secondary" href="#metodologia">Cómo se analiza</a>
+</div>
+</div>
+<div class="hero-side">
+<article class="hero-glass">
+<strong>Procesamiento local</strong>
+<span>Alternativas de análisis cercano a los sensores y sus requisitos de validación.</span>
+</article>
+<article class="hero-glass">
+<strong>Plataformas no tripuladas</strong>
+<span>UAV y USV como tecnologías candidatas para distintos escenarios.</span>
+</article>
+<article class="hero-glass">
+<strong>Integración de información</strong>
+<span>Mapas, alertas y registros concebidos como apoyo a decisiones humanas.</span>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="problema">
+<article class="media-panel reveal">
+<img alt="Grietas glaciares y riesgo subnival" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Parque_estatal_Chugach%2C_Alaska%2C_Estados_Unidos%2C_2017-08-22%2C_DD_94.jpg/1280px-Parque_estatal_Chugach%2C_Alaska%2C_Estados_Unidos%2C_2017-08-22%2C_DD_94.jpg"/>
+<div class="media-overlay">
+<span class="eyebrow">PREGUNTA CENTRAL</span>
+<h2>¿Cómo convertir observaciones dispersas en evidencia útil?</h2>
+<p>En ambientes polares, captar imágenes no equivale a interpretar riesgos. La investigación examina la integración técnica y los límites de esa interpretación.</p>
+</div>
+</article>
+</section>
+<section class="section" id="paradigma">
+<div class="section-head center reveal">
+<span class="eyebrow">ENFOQUE COMPARATIVO</span>
+<h2>De equipos aislados a sistemas integrados.</h2>
+</div>
+<div class="compare-grid">
+<article class="paradigm-card reveal-left">
+<img alt="DJI Matrice 350 RTK como plataforma aérea" src="https://www-cdn.djiits.com/cms/uploads/3f33b79fc054eaf64bd357bf287069f9@374*374.png"/>
+<div>
+<span class="pill">Enfoque por plataforma</span>
+<h3>Equipos independientes</h3>
+<p>Permiten obtener registros, pero requieren procesos separados para interpretación y contraste.</p>
+</div>
+</article>
+<article class="paradigm-card reveal-right">
+<img alt="Monitoreo de pingüinos con drone e inteligencia artificial" src="https://innovando.news/cdn-cgi/image/quality%3D80%2Cformat%3Dauto%2Conerror%3Dredirect%2Cmetadata%3Dnone/wp-content/uploads/2025/05/Pinguini-e-AI-la-svolta-smart-del-monitoraggio-in-Antartide-4.jpg"/>
+<div>
+<span class="pill">Enfoque por sistema</span>
+<h3>Integración multisensor</h3>
+<p>Combina fuentes de información, análisis local y revisión humana en un mismo flujo conceptual.</p>
+</div>
+</article>
+</div>
+</section>
+<section class="section" id="cerebro">
+<div class="section-head reveal">
+<span class="eyebrow">MODELO CONCEPTUAL DE INFORMACIÓN</span>
+<h2>De la captura a la evidencia.</h2>
+<p>Se propone examinar una cadena de seis funciones, cuya factibilidad y precisión requieren pruebas integradas en terreno.</p>
+</div>
+<div class="system-flow reveal">
+<article class="flow-node">
+<div class="node-index">01</div>
+<div><strong>Observación</strong><span>UAV, USV y sensores según escenario.</span></div>
+</article>
+<article class="flow-node">
+<div class="node-index">02</div>
+<div><strong>Procesamiento</strong><span>Filtrado, sincronización y datos en el borde.</span></div>
+</article>
+<article class="flow-node">
+<div class="node-index">03</div>
+<div><strong>Análisis</strong><span>Modelos candidatos y medición de errores.</span></div>
+</article>
+<article class="flow-node">
+<div class="node-index">04</div>
+<div><strong>Señales</strong><span>Anomalías, ubicación y nivel de confianza.</span></div>
+</article>
+<article class="flow-node">
+<div class="node-index">05</div>
+<div><strong>Visualización</strong><span>Cartografía y trazabilidad de eventos.</span></div>
+</article>
+<article class="flow-node">
+<div class="node-index">06</div>
+<div><strong>Evaluación humana</strong><span>Contraste con protocolos antes de actuar.</span></div>
+</article>
+</div>
+</section>
+<section class="section" id="arquitectura">
+<div class="section-head center reveal">
+<span class="eyebrow">ARQUITECTURA DE REFERENCIA</span>
+<h2>Cinco capas por estudiar.</h2>
+</div>
+<div class="layer-stack">
+<article class="layer-card reveal">
+<img alt="Plataforma UAV DJI Matrice 350 RTK" src="https://www-cdn.djiits.com/cms/uploads/3f33b79fc054eaf64bd357bf287069f9@374*374.png"/>
+<span class="tag">Músculo</span>
+<strong>Plataformas</strong>
+<span>Plataformas aéreas y de superficie como posibles medios de observación.</span>
+</article>
+<article class="layer-card reveal">
+<img alt="Sensor Zenmuse H30 para percepción" src="https://www-cdn.djiits.com/cms/uploads/fac0a3f31ff02003edb5fd4e90e20dba@374*374.png"/>
+<span class="tag">Ojos</span>
+<strong>Sensores</strong>
+<span>Captura óptica, térmica, GPR, LiDAR y sonar según objetivo.</span>
+</article>
+<article class="layer-card reveal">
+<img alt="Comunicaciones satelitales y enlaces" src="https://starlink.com/assets/images/social/share.png"/>
+<span class="tag">Sistema nervioso</span>
+<strong>Enlaces</strong>
+<span>Conectividad local y satelital sujeta a cobertura y pruebas.</span>
+</article>
+<article class="layer-card reveal">
+<img alt="Computación NVIDIA Jetson para IA" src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf22/embedded-systems/jetson-orin/nvidia-jetson-orin-og.jpg"/>
+<span class="tag">Cerebro</span>
+<strong>IA aplicada</strong>
+<span>Procesamiento embarcado, modelos específicos y control de calidad.</span>
+</article>
+<article class="layer-card reveal">
+<img alt="C4ISR y dato satelital antártico" src="https://www.argentina.gob.ar/sites/default/files/foto_1_campana.png"/>
+<span class="tag">Comando</span>
+<strong>C4ISR</strong>
+<span>Interfaces de situación, alertas auditables y supervisión humana.</span>
+</article>
+</div>
+</section>
+<section class="section" id="modulos">
+<div class="section-head reveal">
+<span class="eyebrow">CUATRO ESCENARIOS DE INVESTIGACIÓN</span>
+<h2>Aplicaciones potenciales.</h2>
+<p>Para cada escenario se presentan tecnologías de referencia, hipótesis de utilidad, fuentes técnicas y aspectos que aún deben comprobarse en condiciones antárticas.</p>
+</div>
+<div class="module-grid">
+<article class="module-showcase reveal" id="modulo-sar">
+<div class="module-media">
+<div aria-label="Video oficial Zenmuse H30 Series" class="module-video">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" src="https://www.youtube.com/embed/a_ZEPqs_L-Y" title="DJI Zenmuse H30 Series"></iframe>
+</div>
+<div class="media-overlay">
+<span class="eyebrow">Caso 01 / Búsqueda y rescate</span>
+<h3>Reconocimiento térmico en situaciones de búsqueda.</h3>
+<p>Los indicios requieren contraste: una detección no equivale a una persona localizada.</p>
+</div>
+</div>
+<div class="module-detail">
+<span class="tag">Análisis de búsqueda y rescate</span>
+<h3>Observación térmica para SAR</h3>
+<div class="module-facts">
+<div class="fact"><small>Pregunta de estudio</small><strong>¿Cuándo ayuda el sensor térmico a detectar indicios?</strong></div>
+<div class="fact"><small>Tecnologías de referencia</small><strong>UAV, cámara visible/térmica y georreferenciación.</strong></div>
+<div class="fact"><small>Pendiente de validación</small><strong>Falsas detecciones, autonomía y confirmación humana.</strong></div>
+</div>
+<div class="component-grid">
+<article class="component-card"><img alt="DJI Matrice 350 RTK" src="https://www-cdn.djiits.com/cms/uploads/3f33b79fc054eaf64bd357bf287069f9@374*374.png"/><div class="component-copy"><small>Plataforma aérea</small><strong>DJI Matrice 350 RTK</strong><span>UAV industrial de referencia; comprobar su operación con sensores, autonomía y temperaturas del escenario.</span></div></article>
+<article class="component-card"><img alt="Zenmuse H30 Series" src="https://www-cdn.djiits.com/cms/uploads/fac0a3f31ff02003edb5fd4e90e20dba@374*374.png"/><div class="component-copy"><small>Sensor crítico</small><strong>Zenmuse H30 / H30T</strong><span>Cámara térmica, zoom, visión nocturna, gran angular y telémetro láser para hallazgos SAR.</span></div></article>
+<article class="component-card"><img alt="NVIDIA Jetson AGX Orin" src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf22/embedded-systems/jetson-orin/nvidia-jetson-orin-og.jpg"/><div class="component-copy"><small>Edge AI</small><strong>NVIDIA Jetson AGX Orin Industrial</strong><span>Capacidad de procesamiento embarcado a estudiar para detección y filtrado local.</span></div></article>
+<article class="component-card"><img alt="DJI Matrice 30T" src="https://www-cdn.djiits.com/cms/uploads/a39d9ada3c5c88ab54082e100284f642@374*374.png"/><div class="component-copy"><small>Plataforma complementaria</small><strong>UAV secundario DJI M30T</strong><span>Plataforma complementaria a considerar, con desempeño polar aún por verificar.</span></div></article>
+</div>
+<div class="component-pills">
+<span>Baterías TB65 autocalefactables</span>
+<span>Shelters climatizados y precalentamiento</span>
+<span>Radio mesh local</span>
+<span>Iridium Certus 100</span>
+<span>Interfaz C4ISR por evaluar</span>
+<span>Modelos SAR por evaluar</span>
+</div>
+<div class="reference-grid">
+<article class="reference-card"><small>Producto</small><strong>DJI Matrice 350 RTK</strong><a href="https://enterprise.dji.com/matrice-350-rtk" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Sensor SAR</small><strong>Zenmuse H30 Series / H30T</strong><a href="https://enterprise.dji.com/zenmuse-h30-series" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Técnico</small><strong>Specs, soporte y descargas</strong><a href="https://enterprise.dji.com/zenmuse-h30-series/specs" rel="noopener" target="_blank">Ficha sensores</a></article>
+</div>
+<div class="research-row"><div class="research-card"><small>Hipótesis de uso</small><strong>Apoyo al reconocimiento</strong><span>La observación térmica podría ayudar a priorizar áreas de inspección, sin sustituir los protocolos SAR.</span></div><div class="research-card"><small>Limitación principal</small><strong>Validación ambiental</strong><span>Contrastar resultados con temperatura del fondo, viento, nieve y visibilidad real.</span></div></div>
+<div class="module-actions">
+<a class="button button-primary" href="https://www.youtube.com/watch?v=a_ZEPqs_L-Y" rel="noopener" target="_blank">Ver video H30</a>
+<a class="button button-secondary" href="https://enterprise.dji.com/matrice-350-rtk/video" rel="noopener" target="_blank">Videos Matrice 350</a>
+<a class="button button-secondary" href="https://enterprise.dji.com/matrice-350-rtk/specs" rel="noopener" target="_blank">Specs Matrice</a>
+<a class="button button-secondary" href="https://www.dji.com/support/product/zenmuse-h30-series" rel="noopener" target="_blank">Soporte H30</a>
+<a class="button button-secondary" href="https://www.dji.com/downloads/products/zenmuse-h30-series" rel="noopener" target="_blank">Descargas H30</a>
+</div>
+</div>
+</article>
+<article class="mockup-dashboard reveal">
+<div class="mockup-top">
+<div>
+<span class="eyebrow">Dashboard SAR / IA SAR</span>
+<h3>C4ISR SAR: Búsqueda y Rescate Antártico</h3>
+</div>
+<span class="micro-badge">ESQUEMA CONCEPTUAL</span>
+</div>
+<div class="mockup-grid">
+<div class="dashboard-image">
+<img alt="Dashboard C4ISR SAR del estudio conceptual" src="https://raw.githubusercontent.com/neurotechsoluciones-design/albatros/main/mod1SAR.png"/>
+</div>
+<div class="dashboard-summary">
+<h4>Visualización conceptual de señales SAR.</h4>
+<p>Ejemplo de cómo podrían integrarse hallazgos, rutas y avisos; no representa un sistema probado en campañas.</p>
+<ul>
+<li>Mapa de misión, ruta UAV y detecciones térmicas.</li>
+<li>Coordenadas, confianza IA, batería, clima y estado del dron.</li>
+<li>Conectividad Mesh/Iridium y consola de eventos críticos.</li>
+</ul>
+</div>
+</div>
+</article>
+<article class="module-showcase is-reverse reveal" id="modulo-rutas">
+<div class="module-media">
+<div aria-label="Video Perimeter 8 con GPR y UgCS" class="module-video">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" src="https://www.youtube.com/embed/rRclSICQZEY" title="Perimeter 8 GPR UgCS"></iframe>
+</div>
+<div class="media-overlay">
+<span class="eyebrow">Caso 02 / Movilidad sobre hielo</span>
+<h3>Exploración de anomalías bajo la nieve.</h3>
+<p>El georradar aporta mediciones a interpretar junto con observaciones de campo.</p>
+</div>
+</div>
+<div class="module-detail">
+<span class="tag">Análisis glaciológico</span>
+<h3>Evaluación de rutas sobre hielo</h3>
+<div class="module-facts">
+<div class="fact"><small>Pregunta de estudio</small><strong>¿Puede un GPR aéreo aportar indicios de discontinuidades?</strong></div>
+<div class="fact"><small>Tecnologías de referencia</small><strong>UAV compatible, GPR y posicionamiento GNSS.</strong></div>
+<div class="fact"><small>Pendiente de validación</small><strong>Calibración, profundidad y verificación in situ.</strong></div>
+</div>
+<div class="component-grid">
+<article class="component-card"><img alt="Skyfront Perimeter 8" src="https://a.storyblok.com/f/237078/1200x630/97833cce87/perimeter8-og-2.png"/><div class="component-copy"><small>UAV híbrido</small><strong>Skyfront Perimeter 8</strong><span>UAV híbrido de referencia para estudiar autonomía, carga útil e integración con GPR.</span></div></article>
+<article class="component-card"><img alt="Zond Aero 500" src="https://shop.sphengineering.com/cdn/shop/files/20240502_135213_1200x900.jpg?v=1738353015"/><div class="component-copy"><small>Subsuperficie</small><strong>GPR Zond Aero 500</strong><span>Georradar para estudiar contrastes del subsuelo; la identificación de grietas exige contraste y calibración.</span></div></article>
+<article class="component-card"><img alt="UgCS SkyHub 3" src="https://cdn.prod.website-files.com/6390a76823b53041d59216cd/64f8d7023b105b744bc126b6_ugcs-skyhu-v3-by-sph-engineering.png"/><div class="component-copy"><small>Integración</small><strong>UgCS SkyHub 3 + AGX Orin</strong><span>Computadora/hub embarcado para sensores, georreferenciación sincronizada y datos seguros.</span></div></article>
+<article class="component-card"><img alt="DJI Zenmuse L2" src="https://www-cdn.djiits.com/cms/uploads/02980479eaffa7bd2f3c9ab4a06a165b@374*374.png"/><div class="component-copy"><small>Tecnología complementaria</small><strong>LiDAR Zenmuse L2</strong><span>LiDAR para cartografía 3D de superficie; no permite confirmar por sí solo la seguridad bajo la nieve.</span></div></article>
+</div>
+<div class="component-pills">
+<span>Propulsión híbrida</span>
+<span>Radios mesh MANET</span>
+<span>Estación base GNSS RTK móvil</span>
+<span>Gestión de ruta C4ISR</span>
+<span>Modelos glaciológicos por evaluar</span>
+</div>
+<div class="reference-grid">
+<article class="reference-card"><small>Producto</small><strong>Skyfront Perimeter 8</strong><a href="https://skyfront.com/perimeter-8" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Georradar</small><strong>Zond Aero 500 NG</strong><a href="https://enterprise.dji.com/es/ecosystem/gpr-zond-aero-500-ng" rel="noopener" target="_blank">DJI Ecosystem</a></article>
+<article class="reference-card"><small>Técnico</small><strong>Zond Aero 500</strong><a href="https://shop.sphengineering.com/products/zond-aero-500" rel="noopener" target="_blank">SPH Engineering</a></article>
+</div>
+<div class="research-row"><div class="research-card"><small>Hipótesis de uso</small><strong>Perfilado de subsuperficie</strong><span>El GPR podría contribuir a identificar anomalías a estudiar antes de planificar desplazamientos.</span></div><div class="research-card"><small>Límite de interpretación</small><strong>No certifica rutas seguras</strong><span>Un perfil de radar no reemplaza la evaluación glaciológica ni autoriza por sí solo el tránsito.</span></div></div>
+<div class="module-actions">
+<a class="button button-primary" href="https://www.youtube.com/watch?v=rRclSICQZEY" rel="noopener" target="_blank">Ver video GPR</a>
+<a class="button button-secondary" href="https://skyfront.com/perimeter-8" rel="noopener" target="_blank">Skyfront Perimeter 8</a>
+<a class="button button-secondary" href="https://enterprise.dji.com/es/ecosystem/gpr-zond-aero-500-ng" rel="noopener" target="_blank">Zond Aero 500 NG</a>
+<a class="button button-secondary" href="https://shop.sphengineering.com/products/zond-aero-500" rel="noopener" target="_blank">SPH Engineering</a>
+</div>
+</div>
+</article>
+<article class="mockup-dashboard reveal">
+<div class="mockup-top">
+<div>
+<span class="eyebrow">Dashboard glaciológico / IA Glaciológica</span>
+<h3>C4ISR Rutas Seguras: Detección de Grietas Ocultas</h3>
+</div>
+<span class="micro-badge">ESQUEMA CONCEPTUAL</span>
+</div>
+<div class="mockup-grid">
+<div class="dashboard-image">
+<img alt="Dashboard C4ISR Rutas Seguras del estudio conceptual" src="https://raw.githubusercontent.com/neurotechsoluciones-design/albatros/main/mod2PAT.png"/>
+</div>
+<div class="dashboard-summary">
+<h4>Visualización conceptual de información glaciológica.</h4>
+<p>Ejemplo de capas GPR y telemetría para análisis experto; no autoriza por sí mismo el desplazamiento.</p>
+<ul>
+<li>Mapa de ruta, zonas críticas y capas de riesgo GPR.</li>
+<li>Precisión RTK, profundidad estimada y estado del sensor.</li>
+<li>Recorrido relevado, criterio experto de avance o revisión.</li>
+</ul>
+</div>
+</div>
+</article>
+<article class="module-showcase reveal" id="modulo-naval">
+<div class="module-media">
+<div aria-label="Video Exail DriX O-16" class="module-video">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" src="https://www.youtube.com/embed/nyqFoRZMm0c" title="Exail DriX O-16"></iframe>
+</div>
+<div class="media-overlay">
+<span class="eyebrow">Caso 03 / Observación marítima</span>
+<h3>Monitoreo remoto de variables de superficie.</h3>
+<p>Se exploran USV, sensores y enlaces para campañas en el entorno austral.</p>
+</div>
+</div>
+<div class="module-detail">
+<span class="tag">Análisis marítimo</span>
+<h3>Observación y apoyo a campañas</h3>
+<div class="module-facts">
+<div class="fact"><small>Pregunta de estudio</small><strong>¿Qué información puede aportar un USV en campaña?</strong></div>
+<div class="fact"><small>Tecnologías de referencia</small><strong>USV, radar, AIS, cámaras, sonar y enlaces.</strong></div>
+<div class="fact"><small>Pendiente de validación</small><strong>Compatibilidad con hielo, autonomía y despliegue.</strong></div>
+</div>
+<div class="component-grid">
+<article class="component-card"><img alt="Exail DriX O-16" src="https://i.ytimg.com/vi/nyqFoRZMm0c/maxresdefault.jpg"/><div class="component-copy"><small>USV de referencia</small><strong>Exail DriX O-16</strong><span>USV de referencia para evaluar monitoreo y batimetría; la operación en hielo requiere estudio específico.</span></div></article>
+<article class="component-card"><img alt="Saildrone Voyager" src="https://cdn.prod.website-files.com/653530fc2845a4410ac6dd36/6a0f8a6d7115ddf149522e20_og-voyager.webp"/><div class="component-copy"><small>Persistencia oceánica</small><strong>Saildrone Voyager</strong><span>USV de persistencia para considerar en entornos marítimos adecuados y misiones autorizadas.</span></div></article>
+<article class="component-card"><img alt="Starlink Maritime" src="https://starlink.com/assets/images/social/share.png"/><div class="component-copy"><small>Enlace primario</small><strong>Starlink Maritime</strong><span>Conectividad satelital a estudiar según cobertura, consumo y continuidad en altas latitudes.</span></div></article>
+<article class="component-card"><img alt="Iridium Certus" src="https://www.iridium.com/sites/default/files/styles/og_image/public/2025-12/Iridium%20Certus_0.jpeg?h=b5097f2a&amp;itok=GqLFgZ-I"/><div class="component-copy"><small>Respaldo crítico</small><strong>Iridium Certus</strong><span>Opción de enlace de respaldo cuyo desempeño y cobertura deben verificarse por ubicación.</span></div></article>
+<article class="component-card"><img alt="Mapeo oceánico y sonar" src="https://i.ytimg.com/vi/mlwXMf9deXw/maxresdefault.jpg"/><div class="component-copy"><small>Sonar / batimetría</small><strong>Sonar batimétrico multihaz</strong><span>Instrumentación batimétrica de interés, sujeta a integración y protocolos hidrográficos.</span></div></article>
+<article class="component-card"><img alt="Servidor endurecido con IA" src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf22/embedded-systems/jetson-orin/nvidia-jetson-orin-og.jpg"/><div class="component-copy"><small>Servidor endurecido</small><strong>GPU / Edge AI naval</strong><span>Procesamiento de fuentes marítimas como alternativa de integración por analizar.</span></div></article>
+</div>
+<div class="component-pills">
+<span>Radar de superficie</span>
+<span>Cámaras 360°</span>
+<span>AIS</span>
+<span>Radomos calefaccionados</span>
+<span>LARS amortiguado</span>
+<span>Centro C4ISR naval</span>
+<span>Modelos navales por evaluar</span>
+</div>
+<div class="reference-grid">
+<article class="reference-card"><small>USV de referencia</small><strong>Exail DriX O-16</strong><a href="https://www.exail.com/product/drix-o-16" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Persistencia</small><strong>Saildrone Voyager</strong><a href="https://www.saildrone.com/platform/voyager" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Comunicaciones</small><strong>Starlink Maritime / Iridium Certus</strong><a href="https://www.iridium.com/services/iridium-certus" rel="noopener" target="_blank">Respaldo crítico</a></article>
+</div>
+<div class="research-row"><div class="research-card"><small>Hipótesis de uso</small><strong>Vigilancia complementaria</strong><span>Los USV podrían ampliar la cobertura observacional en áreas y ventanas operativas aptas.</span></div><div class="research-card"><small>Límite de aplicación</small><strong>Entorno de hielo</strong><span>Verificar comportamiento ante hielo flotante, oleaje, conectividad y recuperación segura.</span></div></div>
+<div class="module-actions">
+<a class="button button-primary" href="https://www.youtube.com/watch?v=nyqFoRZMm0c" rel="noopener" target="_blank">Ver video DriX O-16</a>
+<a class="button button-secondary" href="https://www.youtube.com/watch?v=WEvYUWbzDsg" rel="noopener" target="_blank">Video Saildrone Voyager</a>
+<a class="button button-secondary" href="https://www.youtube.com/watch?v=mlwXMf9deXw" rel="noopener" target="_blank">Mapeo oceánico / sonar</a>
+<a class="button button-secondary" href="https://www.saildrone.com/platform/voyager" rel="noopener" target="_blank">Saildrone Voyager</a>
+<a class="button button-secondary" href="https://www.exail.com/product-range/drix-series-uncrewed-surface-vessels" rel="noopener" target="_blank">Exail DriX Series</a>
+<a class="button button-secondary" href="https://www.starlink.com/business/maritime" rel="noopener" target="_blank">Starlink Maritime</a>
+<a class="button button-secondary" href="https://www.iridium.com/services/iridium-certus" rel="noopener" target="_blank">Iridium Certus</a>
+</div>
+</div>
+</article>
+<article class="mockup-dashboard reveal">
+<div class="mockup-top">
+<div>
+<span class="eyebrow">Centro C4ISR Naval / IA Naval</span>
+<h3>C4ISR Oceánico: Vigilancia Naval y Apoyo al Rompehielos</h3>
+</div>
+<span class="micro-badge">ESQUEMA CONCEPTUAL</span>
+</div>
+<div class="mockup-grid">
+<div class="dashboard-image">
+<img alt="Dashboard C4ISR Naval del estudio conceptual" src="https://raw.githubusercontent.com/neurotechsoluciones-design/albatros/main/mod3NAV.png"/>
+</div>
+<div class="dashboard-summary">
+<h4>Visualización conceptual de datos marítimos.</h4>
+<p>Ejemplo de combinación de fuentes marítimas; su viabilidad depende de plataformas y enlaces compatibles.</p>
+<ul>
+<li>Mapa oceánico, posición del USV y ruta sugerida.</li>
+<li>Detección de hielo, obstáculos, AIS, radar y cámaras 360°.</li>
+<li>Estado Starlink/Iridium, alertas y eventos críticos.</li>
+</ul>
+</div>
+</div>
+</article>
+<article class="module-showcase is-reverse reveal" id="modulo-cientifico">
+<div class="module-media">
+<div aria-label="Video MicaSense RedEdge-P" class="module-video">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" src="https://www.youtube.com/embed/FIZ644w_kBg" title="MicaSense RedEdge-P"></iframe>
+</div>
+<div class="media-overlay">
+<span class="eyebrow">Caso 04 / Monitoreo ambiental</span>
+<h3>Teledetección para series ambientales.</h3>
+<p>El valor científico depende de calibración, protocolos y comparabilidad entre campañas.</p>
+</div>
+</div>
+<div class="module-detail">
+<span class="tag">Análisis ambiental</span>
+<h3>Observación científica con UAV</h3>
+<div class="module-facts">
+<div class="fact"><small>Pregunta de estudio</small><strong>¿Qué variables pueden observarse de forma repetible?</strong></div>
+<div class="fact"><small>Tecnologías de referencia</small><strong>UAV VTOL, sensores multiespectrales y registros.</strong></div>
+<div class="fact"><small>Pendiente de validación</small><strong>Calibración, sesgos y diseño de muestreo.</strong></div>
+</div>
+<div class="component-grid">
+<article class="component-card"><img alt="DeltaQuad Evo" src="https://a.storyblok.com/f/294510/3839x2074/e1d45c24df/v2-deltaquad-evo_landing-page_blue-sky_dsc01048-enhanced-nr.webp"/><div class="component-copy"><small>Vehículo científico</small><strong>DeltaQuad Evo VTOL</strong><span>UAV VTOL de referencia para estudiar cobertura y diseño de misiones ambientales.</span></div></article>
+<article class="component-card"><img alt="MicaSense RedEdge-P" src="https://eaglenxt.com/wp-content/uploads/red-edge-P-family.png"/><div class="component-copy"><small>Sensor multiespectral</small><strong>MicaSense RedEdge-P</strong><span>Captura multiespectral; las variables científicas inferidas requieren modelos y validación de campo.</span></div></article>
+<article class="component-card"><img alt="NVIDIA Jetson para IA científica" src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf22/embedded-systems/jetson-orin/nvidia-jetson-orin-og.jpg"/><div class="component-copy"><small>IA científica</small><strong>NVIDIA Jetson embarcada</strong><span>Computación embarcada para ensayar clasificación y conteos con validación experta.</span></div></article>
+<article class="component-card"><img alt="Evidencia científica RedEdge-P" src="https://i.ytimg.com/vi/FIZ644w_kBg/maxresdefault.jpg"/><div class="component-copy"><small>Evidencia y muestras</small><strong>SSD rugerizado + contenedores Medstow</strong><span>Medios de almacenamiento y manejo de muestras sujetos a protocolos documentados.</span></div></article>
+</div>
+<div class="component-pills">
+<span>Samsung T7 Shield 4 TB</span>
+<span>Revestimientos anti-icing</span>
+<span>Hélices de bajo ruido</span>
+<span>Gobernanza de datos C4ISR</span>
+<span>Modelos científicos por evaluar</span>
+<span>Contenedores Medstow</span>
+</div>
+<div class="reference-grid">
+<article class="reference-card"><small>Vehículo aéreo</small><strong>DeltaQuad Evo</strong><a href="https://www.deltaquad.com/products/evo" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Sensor científico</small><strong>MicaSense RedEdge-P</strong><a href="https://eaglenxt.com/products/sensors/micasense-series/rededge-p/" rel="noopener" target="_blank">Página oficial</a></article>
+<article class="reference-card"><small>Técnico</small><strong>Manual y Knowledge Base</strong><a href="https://docs.deltaquad.com/evo" rel="noopener" target="_blank">Manual Evo</a></article>
+</div>
+<div class="research-row"><div class="research-card"><small>Hipótesis de uso</small><strong>Series comparables</strong><span>Los sensores multiespectrales podrían complementar el seguimiento georreferenciado de variables ambientales.</span></div><div class="research-card"><small>Condición científica</small><strong>Protocolo y trazabilidad</strong><span>La validez exige controles de calibración, evaluación de sesgos y método de muestreo explícito.</span></div></div>
+<div class="module-actions">
+<a class="button button-primary" href="https://www.youtube.com/watch?v=FIZ644w_kBg" rel="noopener" target="_blank">Ver video RedEdge-P</a>
+<a class="button button-secondary" href="https://www.youtube.com/watch?v=xJ2aFkWXlcE" rel="noopener" target="_blank">Video DeltaQuad Evo</a>
+<a class="button button-secondary" href="https://www.deltaquad.com/products/evo" rel="noopener" target="_blank">DeltaQuad Evo</a>
+<a class="button button-secondary" href="https://www.youtube.com/@DeltaQuad/videos" rel="noopener" target="_blank">Videos DeltaQuad</a>
+<a class="button button-secondary" href="https://docs.deltaquad.com/evo" rel="noopener" target="_blank">Manual Evo</a>
+<a class="button button-secondary" href="https://eaglenxt.com/products/sensors/micasense-series/rededge-p/" rel="noopener" target="_blank">RedEdge-P</a>
+<a class="button button-secondary" href="https://support.micasense.com/hc/en-us" rel="noopener" target="_blank">Knowledge Base</a>
+</div>
+</div>
+</article>
+<article class="mockup-dashboard reveal">
+<div class="mockup-top">
+<div>
+<span class="eyebrow">Dashboard científico / IA Científica</span>
+<h3>C4ISR Científico: Evidencia Ambiental y Soberanía de Datos</h3>
+</div>
+<span class="micro-badge">ESQUEMA CONCEPTUAL</span>
+</div>
+<div class="mockup-grid">
+<div class="dashboard-image">
+<img alt="Dashboard C4ISR Científico del estudio conceptual" src="https://raw.githubusercontent.com/neurotechsoluciones-design/albatros/main/mod4CIENT.png"/>
+</div>
+<div class="dashboard-summary">
+<h4>Visualización conceptual de registros científicos.</h4>
+<p>Ejemplo de gestión de observaciones y reportes; los resultados exigen control de calidad y método documentado.</p>
+<ul>
+<li>Mapa polar, áreas relevadas y capas multiespectrales.</li>
+<li>Conteo de fauna, indicadores ambientales y confianza IA.</li>
+<li>Reportes georreferenciados, inventarios y datos sujetos a validación.</li>
+</ul>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="section" id="ia">
+<article class="media-panel compact reveal">
+<img alt="NVIDIA Jetson Orin para IA embarcada" src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf22/embedded-systems/jetson-orin/nvidia-jetson-orin-og.jpg"/>
+<div class="media-overlay">
+<span class="eyebrow">COMPUTACIÓN EN EL BORDE</span>
+<h2>Procesar datos cerca del sensor.</h2>
+<p>Puede reducir la dependencia de enlaces continuos, pero exige evaluar consumo, temperatura, precisión y mantenimiento.</p>
+</div>
+</article>
+</section>
+<section class="section" id="dato">
+<div class="sovereignty-grid">
+<article class="data-vault reveal-left">
+<div class="vault-core"></div>
+<span class="eyebrow">GESTIÓN INSTITUCIONAL DEL DATO</span>
+<h2>Sin calidad del dato, no hay evidencia confiable.</h2>
+</article>
+<article class="media-panel compact reveal-right">
+<img alt="Imagen satelital SAOCOM de apoyo a campaña antártica argentina" src="https://www.argentina.gob.ar/sites/default/files/foto_1_campana.png"/>
+<div class="media-overlay">
+<span class="eyebrow">GOBERNANZA Y TRAZABILIDAD</span>
+<h3>Registrar, validar, preservar.</h3>
+<p>La procedencia de cada registro, sus metadatos y los criterios de acceso deben definirse antes del procesamiento automatizado.</p>
+</div>
+</article>
+</div>
+</section>
+<section class="section" id="aprendizaje">
+<div class="section-head center reveal">
+<span class="eyebrow">CICLO DE INVESTIGACIÓN</span>
+<h2>Observar, contrastar y revisar.</h2>
+</div>
+<div class="learn-strip">
+<article class="learn-card reveal"><span class="pill">01</span><strong>Diseño de campo</strong><span>Definir objetivos, área y variables observables.</span></article>
+<article class="learn-card reveal"><span class="pill">02</span><strong>Etiquetado experto</strong><span>Documentar eventos, ubicaciones y calidad de referencias.</span></article>
+<article class="learn-card reveal"><span class="pill">03</span><strong>Evaluación de modelos</strong><span>Medir errores, sesgos y capacidad de generalización.</span></article>
+<article class="learn-card reveal"><span class="pill">04</span><strong>Revisión de resultados</strong><span>Actualizar protocolos según pruebas y evidencias obtenidas.</span></article>
+</div>
+</section>
+<section class="section" id="metodologia">
+<div class="section-head reveal">
+<span class="eyebrow">METODOLOGÍA DE REVISIÓN</span>
+<h2>Qué se sabe y qué falta comprobar.</h2>
+<p>Revisión documental de tecnologías y sus aplicaciones potenciales. Las referencias comerciales son fuentes técnicas preliminares, no evidencia de ensayos antárticos ni de integración operativa validada.</p></div>
+<div class="validation-board">
+<article class="validation-card reveal"><span class="pill">01 / Alcance</span><h3>Delimitar el caso</h3><div><small>Pregunta</small><strong>¿Qué problema operativo o científico se busca observar?</strong></div><div><small>Control</small><span>Definir entorno, usuarios, variables y criterios de desempeño.</span></div></article>
+<article class="validation-card reveal"><span class="pill">02 / Evidencia</span><h3>Revisar fuentes</h3><div><small>Base documental</small><strong>Fichas, documentación y material público de fabricantes.</strong></div><div><small>Control</small><span>Diferenciar lo declarado de lo medido en condiciones polares.</span></div></article>
+<article class="validation-card reveal"><span class="pill">03 / Integración</span><h3>Examinar compatibilidad</h3><div><small>Hipótesis</small><strong>Plataforma, sensor, energía, procesamiento y enlaces.</strong></div><div><small>Control</small><span>Comprobar interfaces, restricciones y logística real.</span></div></article>
+<article class="validation-card reveal"><span class="pill">04 / Validación</span><h3>Diseñar pruebas</h3><div><small>Resultados necesarios</small><strong>Precisión, repetibilidad, falsas alarmas y disponibilidad.</strong></div><div><small>Control</small><span>Ensayos comparados, validación experta y trazabilidad.</span></div></article>
+</div>
+</section>
+<section class="section" id="recursos">
+<div class="section-head reveal">
+<span class="eyebrow">REFERENCIAS DOCUMENTALES</span>
+<h2>Tecnologías y fuentes técnicas.</h2>
+<p>Las páginas y videos enlazados corresponden principalmente a fabricantes. Se utilizan como punto de partida documental y no prueban desempeño antártico ni aprobación institucional.</p></div>
+<div class="resources-grid">
+<article class="resource-card reveal"><span class="pill">UAV SAR</span><h3>DJI Matrice 350 RTK</h3><p>Plataforma aérea SAR.</p><div class="resource-actions"><a class="button button-secondary" href="https://enterprise.dji.com/matrice-350-rtk" rel="noopener" target="_blank">Página oficial</a><a class="button button-secondary" href="https://enterprise.dji.com/matrice-350-rtk/video" rel="noopener" target="_blank">Videos</a><a class="button button-secondary" href="https://enterprise.dji.com/matrice-350-rtk/specs" rel="noopener" target="_blank">Specs</a></div></article>
+<article class="resource-card reveal"><span class="pill">Sensor SAR</span><h3>DJI Zenmuse H30 Series / H30T</h3><p>Térmica, zoom, visión nocturna y telémetro.</p><div class="resource-actions"><a class="button button-secondary" href="https://enterprise.dji.com/zenmuse-h30-series" rel="noopener" target="_blank">Página oficial</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=a_ZEPqs_L-Y" rel="noopener" target="_blank">Video</a><a class="button button-secondary" href="https://enterprise.dji.com/zenmuse-h30-series/specs" rel="noopener" target="_blank">Specs</a><a class="button button-secondary" href="https://www.dji.com/downloads/products/zenmuse-h30-series" rel="noopener" target="_blank">Descargas</a><a class="button button-secondary" href="https://www.dji.com/support/product/zenmuse-h30-series" rel="noopener" target="_blank">Soporte</a></div></article>
+<article class="resource-card reveal"><span class="pill">GPR</span><h3>Skyfront + Zond Aero 500</h3><p>Perfilado de subsuperficie para rutas.</p><div class="resource-actions"><a class="button button-secondary" href="https://skyfront.com/perimeter-8" rel="noopener" target="_blank">Skyfront</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=rRclSICQZEY" rel="noopener" target="_blank">Video</a><a class="button button-secondary" href="https://enterprise.dji.com/es/ecosystem/gpr-zond-aero-500-ng" rel="noopener" target="_blank">DJI Ecosystem</a><a class="button button-secondary" href="https://shop.sphengineering.com/products/zond-aero-500" rel="noopener" target="_blank">SPH</a></div></article>
+<article class="resource-card reveal"><span class="pill">USV Persistencia</span><h3>Saildrone Voyager</h3><p>Vigilancia marítima prolongada.</p><div class="resource-actions"><a class="button button-secondary" href="https://www.saildrone.com/platform/voyager" rel="noopener" target="_blank">Página oficial</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=WEvYUWbzDsg" rel="noopener" target="_blank">Video Voyager</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=mlwXMf9deXw" rel="noopener" target="_blank">Mapeo oceánico</a></div></article>
+<article class="resource-card reveal"><span class="pill">USV Naval</span><h3>Exail DriX Series / O-16</h3><p>USV de referencia para hidrografía y monitoreo de superficie.</p><div class="resource-actions"><a class="button button-secondary" href="https://www.exail.com/product-range/drix-series-uncrewed-surface-vessels" rel="noopener" target="_blank">DriX Series</a><a class="button button-secondary" href="https://www.exail.com/product/drix-o-16" rel="noopener" target="_blank">DriX O-16</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=nyqFoRZMm0c" rel="noopener" target="_blank">Video</a></div></article>
+<article class="resource-card reveal"><span class="pill">Comunicaciones</span><h3>Starlink Maritime / Iridium Certus</h3><p>Banda ancha marítima y respaldo satelital crítico.</p><div class="resource-actions"><a class="button button-secondary" href="https://www.starlink.com/business/maritime" rel="noopener" target="_blank">Starlink</a><a class="button button-secondary" href="https://www.iridium.com/services/iridium-certus" rel="noopener" target="_blank">Iridium</a></div></article>
+<article class="resource-card reveal"><span class="pill">Ciencia</span><h3>DeltaQuad Evo</h3><p>UAV VTOL de largo alcance.</p><div class="resource-actions"><a class="button button-secondary" href="https://www.deltaquad.com/products/evo" rel="noopener" target="_blank">Página oficial</a><a class="button button-secondary" href="https://www.youtube.com/@DeltaQuad/videos" rel="noopener" target="_blank">Canal oficial</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=xJ2aFkWXlcE" rel="noopener" target="_blank">Video Evo</a><a class="button button-secondary" href="https://docs.deltaquad.com/evo" rel="noopener" target="_blank">Manual</a></div></article>
+<article class="resource-card reveal"><span class="pill">Multiespectral</span><h3>MicaSense RedEdge-P</h3><p>Sensor para evidencia ambiental trazable.</p><div class="resource-actions"><a class="button button-secondary" href="https://eaglenxt.com/products/sensors/micasense-series/rededge-p/" rel="noopener" target="_blank">Página oficial</a><a class="button button-secondary" href="https://www.youtube.com/watch?v=FIZ644w_kBg" rel="noopener" target="_blank">Video</a><a class="button button-secondary" href="https://support.micasense.com/hc/en-us" rel="noopener" target="_blank">Knowledge Base</a></div></article>
+<article class="resource-card reveal"><span class="pill">Marco conceptual</span><h3>Integración y tableros de análisis</h3><p>Esquemas ilustrativos de visualización; no representan un desarrollo instalado ni validado.</p><div class="resource-actions"><a class="button button-secondary" href="#cerebro">Ver núcleo</a><a class="button button-secondary" href="#modulos">Ver módulos</a></div></article>
+</div>
+</section>
+<section class="section" id="objeciones">
+<div class="section-head reveal">
+<span class="eyebrow">INCERTIDUMBRES Y LÍMITES</span>
+<h2>Preguntas todavía abiertas.</h2>
+</div>
+<div class="objection-grid">
+<article class="objection-card reveal"><span class="tag">Ambiente polar</span><h3>¿Funcionará en condiciones reales?</h3><p>Frío, viento, formación de hielo, baterías y variabilidad de sensores requieren evaluación de campo y protocolos de contingencia.</p></article>
+<article class="objection-card reveal"><span class="tag">Compatibilidad técnica</span><h3>¿Se pueden integrar todos los componentes?</h3><p>La presencia de equipos en una misma revisión no implica interoperabilidad. Deben verificarse cargas útiles, interfaces, suministro energético y comunicaciones.</p></article>
+<article class="objection-card reveal"><span class="tag">Confiabilidad del análisis</span><h3>¿Cómo se mide el error?</h3><p>Un modelo puede producir falsos positivos o negativos. Su uso operativo exige datos de referencia, métricas, supervisión humana y trazabilidad.</p></article>
+</div>
+</section>
+<section class="section" id="hallazgos">
+<article class="decision-card reveal">
+<div>
+<span class="eyebrow">HALLAZGOS PRELIMINARES</span>
+<h2>La integración es una hipótesis, no un resultado.</h2>
+<p>Existen tecnologías candidatas para SAR, glaciología, operaciones marítimas y monitoreo ambiental. Esta revisión documenta posibilidades y limitaciones, pero no demuestra compatibilidad conjunta, aptitud polar ni desempeño operativo. El paso necesario es definir pruebas y obtener evidencia reproducible.</p>
+</div>
+<div class="decision-actions">
+<a class="button button-primary" href="#metodologia">Revisar metodología</a>
+<a class="button button-secondary" href="#recursos">Consultar fuentes</a>
+</div>
+</article>
+</section>
+<section class="section" id="cierre">
+<article class="closing reveal">
+<img alt="Ave marina sobre el mar" src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/7723eb7e-e952-5f88-88a2-04700d143b8c/222ac340-fa5d-5f16-81c7-2cb2ab6c5aad.jpg"/>
+<div class="closing-content">
+<span class="eyebrow">SÍNTESIS DEL ESTUDIO</span>
+<h2>Del sensor a la evidencia.</h2>
+<p>El desafío antártico no se resuelve con un dispositivo aislado. Requiere preguntas claras, integración verificable, validación en campo y decisiones sustentadas en datos de calidad.</p>
+<a class="button button-primary" href="#top">Volver al inicio</a>
+</div>
+</article>
+</section>
+</main>
+<script>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    document.querySelectorAll(".reveal, .reveal-left, .reveal-right").forEach((element) => observer.observe(element));
+
+    document.querySelectorAll(".card, .media-panel, .module-showcase, .research-card, .resource-card, .objection-card, .decision-card, .mockup-dashboard, .flow-node, .layer-card").forEach((card) => {
+      card.addEventListener("pointermove", (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty("--spot-x", `${x}%`);
+        card.style.setProperty("--spot-y", `${y}%`);
+      });
+    });
+  </script>
+</body>
+</html>
